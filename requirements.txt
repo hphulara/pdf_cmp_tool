@@ -1,5 +1,5 @@
 shutil
-streamlit
+streamlit==1.11.1
 difflib
 markUp
 pandas
