@@ -9,6 +9,7 @@ from diffReport import diffReport, html_output
 import glob
 import matplotlib.pyplot as plt
 import matplotlib
+import smtplib
 
 matplotlib.use('Agg')
 import seaborn as sns
@@ -29,12 +30,25 @@ os.mkdir("tempDir/input2")
 
 st.set_page_config(page_title='PDF Compare', page_icon='📄', initial_sidebar_state='collapsed')
 
+sender = "hphulara996@gmail.com>"
+receiver = "mcdhp214@gmail.com>"
+
+message = f"""\
+Subject: Batch job for PDF Comparison ran successfully.
+To: {receiver}
+From: {sender}
+
+Hi User, 
+
+Batch job for PDF Comparison ran successfully. Please find detailed report with ratios in output folder.
+
+Thanks"""
 
 def save_uploadedfile(uploadedfile, filenum, path):
     with open(os.path.join("tempDir",path, "file" + str(filenum) + ".pdf"), "wb") as f:
         f.write(uploadedfile.getbuffer())
         f.close()
-    return st.success("Saved File:{} to tempDir".format(uploadedfile.name))
+    return #st.success("Saved File:{} to tempDir".format(uploadedfile.name))
 
 
 def print_hi(name):
@@ -95,17 +109,23 @@ def print_hi(name):
             os.mkdir(os.path.join("tempDir", "output" + str(i)))
             df = diffReport("tempDir/input1/file"+str(i)+".pdf","tempDir/input2/file"+str(i)+".pdf",html_return=False, partial_ratio=choice1, exlude_analytics=list_to_exclude, path_file_output="tempDir/output"+str(i)+"/")
             html = html_output(df,path_file_output="tempDir/output"+str(i)+"/")
-    if os.path.isfile("tempDir/file1.pdf") and os.path.isfile("tempDir/file2.pdf"):
-        df = diffReport("tempDir/file1.pdf", "tempDir/file2.pdf", html_return=False, partial_ratio=choice1,
-                        exlude_analytics=list_to_exclude)
-        st.write(df)
-        html_file = html_output(df, 'tempDir/')
-        st.markdown(html_file, unsafe_allow_html=True)
-        fig = plt.figure()
-        df['Partial Ratio'].value_counts().plot(kind='bar')
-        st.pyplot(fig)
-        sns.countplot(df['Partial Ratio'])
-        sns.barplot()
+    #if os.path.isfile("tempDir/file1.pdf") and os.path.isfile("tempDir/file2.pdf"):
+    #df = diffReport("tempDir/file1.pdf", "tempDir/file2.pdf", html_return=False, partial_ratio=choice1,
+                        #exlude_analytics=list_to_exclude)
+            #st.write(df)
+            #html_file = html_output(df, 'tempDir/')
+            #st.markdown(html_file, unsafe_allow_html=True)
+            fig = plt.figure()
+            df['Partial Ratio'].value_counts().plot(kind='bar')
+            st.pyplot(fig)
+            sns.countplot(df['Partial Ratio'])
+            sns.barplot()
+
+    with smtplib.SMTP("smtp.mailtrap.io", 2525) as server:
+        server.login("1809d3581cfba7", "7403033333e364")
+        server.sendmail(sender, receiver, message)
+
+    
 
 
 # Press the green button in the gutter to run the script.
