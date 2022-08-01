@@ -1,9 +1,7 @@
-shutil
+diffReport==0.1.3
+fuzzywuzzy==0.18.0
+matplotlib==3.5.0
+pandas==1.3.4
+pdfminer==20191125
+seaborn==0.11.2
 streamlit==1.11.1
-difflib
-markUp
-pandas
-os
-diffReport
-glob
-matplotlib
