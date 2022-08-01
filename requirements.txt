@@ -1,5 +1,5 @@
-import shutil
-import streamlit as st
+shutil
+streamlit as st
 import difflib
 from markUp import markUpDifferences
 import pandas as pd
