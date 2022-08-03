@@ -5,9 +5,9 @@ from pdfminer.layout import LAParams
 import io
 
 
-def pdfparser(path):
+def pdfparser(file):
     """ Function that takes a path of a PDF file as input and extracts the text within the file as a string"""
-    fp = open(path, 'rb')
+    fp = open(file, 'rb')
     rsrcmgr = PDFResourceManager()
     retstr = io.StringIO()
     codec = 'utf-8'
@@ -26,10 +26,10 @@ def pdfparser(path):
 
 def txtparser(ip1, ip2, res1, res2):
     try:
-        f = open('tempDir/Text_Input1.txt', 'w')
+        f = open('Temp/Text_Input1.txt', 'w')
         f.write(res1)
         f.close()
-        f = open('tempDir/Text_Input2.txt', 'w')
+        f = open('Temp/Text_Input2.txt', 'w')
         f.write(res2)
         f.close()
     except er:

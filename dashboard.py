@@ -3,7 +3,7 @@ import difflib
 from markUp import markUpDifferences
 import pandas as pd
 import os
-from diffReport_aditi import diffReport,html_output
+from diffReport import diffReport,html_output
 import glob
 import matplotlib.pyplot as plt
 import matplotlib
