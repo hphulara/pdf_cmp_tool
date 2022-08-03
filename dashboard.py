@@ -1,133 +1,106 @@
-import shutil
-
-import streamlit as st
+﻿import streamlit as st
 import difflib
 from markUp import markUpDifferences
 import pandas as pd
 import os
-from diffReport import diffReport, html_output
+from diffReport_aditi import diffReport,html_output
 import glob
 import matplotlib.pyplot as plt
 import matplotlib
-import smtplib
-
 matplotlib.use('Agg')
 import seaborn as sns
-
-shutil.rmtree('tempDir')
-os.mkdir("tempDir")
-os.mkdir("tempDir/input1")
-os.mkdir("tempDir/input2")
-
-#files = glob.glob('tempDir/input1/*')  # Delete every file present in temp directory
-#for f in files:
-#    os.remove(f)
-
-#files = glob.glob('tempDir/input2/*')  # Delete every file present in temp directory
-#for f in files:
-#    os.remove(f)
-
-
-st.set_page_config(page_title='PDF Compare', page_icon='📄', initial_sidebar_state='collapsed')
+import numpy as np
+import smtplib
 
 sender = "hphulara996@gmail.com>"
 receiver = "mcdhp214@gmail.com>"
 
 message = f"""\
-Subject: Batch job for PDF Comparison ran successfully.
+Subject: PDF Comparison ran successfully.
 To: {receiver}
 From: {sender}
 
 Hi User, 
 
-Batch job for PDF Comparison ran successfully. Please find detailed report with ratios in output folder.
+PDF Comparison ran successfully. Please download the detailed CSV report with ratios.
 
 Thanks"""
 
-def save_uploadedfile(uploadedfile, filenum, path):
-    with open(os.path.join("tempDir",path, "file" + str(filenum) + ".pdf"), "wb") as f:
-        f.write(uploadedfile.getbuffer())
-        f.close()
-    return #st.success("Saved File:{} to tempDir".format(uploadedfile.name))
+st.set_page_config(page_title='PDF Compare',page_icon='📄',initial_sidebar_state='collapsed')
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    st.markdown("<h2 style='text-align: center; color: grey;'>PDF Comparison</h2>", unsafe_allow_html=True)
-    input1 = st.file_uploader('Please upload your 1st file', type=['pdf'], accept_multiple_files=True)
-    i=1
-    for input_file in input1:
-        if input_file is not None:
-            save_uploadedfile(input_file, i, "input1")
-            i+=1
-    #if input1 is not None:
-    #    file_details = {'File Name': input1.name, 'File Size': input1.size}
-    #    st.write(file_details)
-    #    save_uploadedfile(input1, 1)
-    input2 = st.file_uploader('Please upload your 2nd file', type=['pdf'], accept_multiple_files=True)
-    i = 1
-    for input_file in input2:
-        if input_file is not None:
-            save_uploadedfile(input_file, i, "input2")
-            i+=1
 
-    #if input2 is not None:
-    #    file_details = {'File Name': input2.name, 'File Size': input2.size}
-    #    st.write(file_details)
-    #    save_uploadedfile(input2, 2)
-
-    select_ratio = ['Partial Ratio', 'qRatio', 'wRatio', "tokenSortRatio", 'partialRatio', 'tokenSetRatio',
-                    'partialTokenSortRatio']
-    choice1 = st.radio('Please select the Partial Ratio', select_ratio)
-    st.write('Select options to exclude from analytics:')
-
-    ncol = st.sidebar.number_input('Number of characters/ Substring to exclude', 0, 20, 1)
-    cols = st.columns(ncol)
-
-    st.button("Submit")
-    col1, col2, col3 = st.columns(3)
-    st.write("List of characters/ Substring to exclude")
-    with col1:
-        text_1 = st.text_input('Option 1', key='1')
-    with col2:
-        text_2 = st.text_input('Option 2', key='2')
-    with col3:
-        text_3 = st.text_input('Option 3', key='3')
-    st.write(
-        "For more characters or substrings to exclude from analytics, please provide them in the below text box seperated by a coma , Ex: 'text1,text2' ")
-    comma_sep_input = st.text_input('Comma seperated characters to exclude')
-    list_to_exclude = comma_sep_input.split(',')
-    list_to_exclude += [text_1, text_2, text_3]
-
-    files_in_input1 = len([name for name in os.listdir('tempDir/input1') if os.path.isfile(os.path.join('tempDir/input1', name))])
-    files_in_input2 = len([name for name in os.listdir('tempDir/input2') if os.path.isfile(os.path.join('tempDir/input2', name))])
-
-    if(files_in_input1 != files_in_input2):
-        st.write("Number of files in input 1 does not match with number of files in input 2, Please provide the same number of files for one to one comparison")
+def main():
+    st.markdown("<h2 style='text-align: center; color: grey;'>PDF Comparision</h2>", unsafe_allow_html=True)
+    try:
+        input1 = st.file_uploader('upload files from first folder', type=['pdf'],accept_multiple_files=True,)
+        filelist1=[]
+        if input1 is not None:
+            for i in range(len(input1)):
+                head, sep, tail = str(input1[i].name).partition(".")
+                filelist1.append(str(head))
+        st.write(filelist1)
+    except Exception as er:
+        st.error("Error while readin the files from first folder {} ".format(er))
     else:
-        for i in range(1,files_in_input1+1):
-            os.mkdir(os.path.join("tempDir", "output" + str(i)))
-            df = diffReport("tempDir/input1/file"+str(i)+".pdf","tempDir/input2/file"+str(i)+".pdf",html_return=False, partial_ratio=choice1, exlude_analytics=list_to_exclude, path_file_output="tempDir/output"+str(i)+"/")
-            html = html_output(df,path_file_output="tempDir/output"+str(i)+"/")
-    #if os.path.isfile("tempDir/file1.pdf") and os.path.isfile("tempDir/file2.pdf"):
-    #df = diffReport("tempDir/file1.pdf", "tempDir/file2.pdf", html_return=False, partial_ratio=choice1,
-                        #exlude_analytics=list_to_exclude)
-            #st.write(df)
-            #html_file = html_output(df, 'tempDir/')
-            #st.markdown(html_file, unsafe_allow_html=True)
-            fig = plt.figure()
-            df['Partial Ratio'].value_counts().plot(kind='bar')
-            st.pyplot(fig)
-            sns.countplot(df['Partial Ratio'])
-            sns.barplot()
+        try:
+            input2 = st.file_uploader('upload files from second folder', type=['pdf'],accept_multiple_files=True,)
+            filelist2=[]
+            if input2 is not None:
+                for i in range(len(input2)):
+                    head, sep, tail = str(input2[i].name).partition(".")
+                    filelist2.append(str(head))
+            st.write(filelist2)
+        except Exception as er:
+            st.error("Error while readin the files from second folder {} ".format(er))
+        else:
+            try:
+                select_ratio =['Partial Ratio','qRatio','wRatio',"tokenSortRatio",'partialRatio','tokenSetRatio','partialTokenSortRatio']
+                choice = st.radio('Please select the Partial Ratio',select_ratio)
+                st.write('Select options to exclude from analytics:')
 
-    with smtplib.SMTP("smtp.mailtrap.io", 2525) as server:
-        server.login("1809d3581cfba7", "7403033333e364")
-        server.sendmail(sender, receiver, message)
+                ncol = st.sidebar.number_input('Number of characters/ Substring to exclude', 0, 20, 1)
+                cols = st.columns(ncol)
 
-    
+                st.button("Submit")
+                col1, col2, col3 = st.columns(3)
+                st.write("List of characters/ Substring to exclude")
+                with col1:
+                    text_1 = st.text_input('Option 1', key='1')
+                with col2:
+                    text_2 = st.text_input('Option 2', key='2')
+                with col3:
+                    text_3 = st.text_input('Option 3', key='3')
+                st.write("For more characters or substrings to exclude from analytics, please provide them in the below text box seperated by a comma , Eg: 'text1,text2' ")
+                comma_sep_input = st.text_input('Comma seperated characters to exclude')
+                list_to_exclude = comma_sep_input.split(',')
+                list_to_exclude += [text_1,text_2,text_3]
 
+                for i in range(len(input1)):
+                    for j in range(len(input2)):
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+                        if input1[i].name.split('_')[0] == input2[j].name.split('_')[0]:
+                        
+                            df = diffReport(input1[i].name,input2[j].name,html_return=True,partial_ratio=choice,exlude_analytics=list_to_exclude)
+                            st.header('Comparison difference between ' + input1[i].name + '  &  ' + input2[j].name)
+                            st.write(df)
+                            #st.write(html_op)
+                            file_name = str(input1[i].name.split('_')[0]) + '_compare.csv'
+                            df = df.to_csv().encode('utf-8')
+                            st.download_button(
+                              label = "Download data as CSV",
+                              data = df,
+                              file_name = file_name,
+                              mime = 'text/csv',
+                            )
+                with smtplib.SMTP("smtp.mailtrap.io", 2525) as server:
+                    server.login("1809d3581cfba7", "7403033333e364")
+                    server.sendmail(sender, receiver, message)
+            except Exception as er:
+                st.error("Error while showing the ratio result {} ".format(er))
+            
+                    
+
+                
+
+main()
