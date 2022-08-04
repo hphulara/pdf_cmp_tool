@@ -31,9 +31,9 @@ st.set_page_config(page_title='PDF Compare',page_icon='📄',initial_sidebar_sta
 
 
 def main():
-    st.markdown("<h2 style='text-align: center; color: grey;'>PDF Comparision</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center; color: grey;'>PDF Comparison</h2>", unsafe_allow_html=True)
     try:
-        input1 = st.file_uploader('upload files from first folder', type=['pdf'],accept_multiple_files=True,)
+        input1 = st.file_uploader('Upload files from first folder', type=['pdf'],accept_multiple_files=True,)
         filelist1=[]
         if input1 is not None:
             for i in range(len(input1)):
@@ -44,7 +44,7 @@ def main():
         st.error("Error while readin the files from first folder {} ".format(er))
     else:
         try:
-            input2 = st.file_uploader('upload files from second folder', type=['pdf'],accept_multiple_files=True,)
+            input2 = st.file_uploader('Upload files from second folder', type=['pdf'],accept_multiple_files=True,)
             filelist2=[]
             if input2 is not None:
                 for i in range(len(input2)):
@@ -62,7 +62,7 @@ def main():
                 ncol = st.sidebar.number_input('Number of characters/ Substring to exclude', 0, 20, 1)
                 cols = st.columns(ncol)
 
-                st.button("Submit")
+                #st.button("Submit")
                 col1, col2, col3 = st.columns(3)
                 st.write("List of characters/ Substring to exclude")
                 with col1:
