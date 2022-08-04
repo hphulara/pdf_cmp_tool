@@ -55,7 +55,7 @@ def diffReport(folder1, folder2, path_file_output='Output/', html_return = True,
     df.reset_index(drop=True)
     #df.to_csv("html_df.csv")
 
-    return df
+    return df,folder2.split('_')[0]
     #return df, html_output(df, path_file_output, folder2.split('_')[0])
 
 

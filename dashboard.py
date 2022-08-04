@@ -81,9 +81,11 @@ def main():
 
                         if input1[i].name.split('_')[0] == input2[j].name.split('_')[0]:
                         
-                            df = diffReport(input1[i].name,input2[j].name,html_return=True,partial_ratio=choice,exlude_analytics=list_to_exclude)
+                            df,cmp_file = diffReport(input1[i].name,input2[j].name,html_return=True,partial_ratio=choice,exlude_analytics=list_to_exclude)
                             st.header('Comparison difference between ' + input1[i].name + '  &  ' + input2[j].name)
-                            st.write(df)
+                            #st.write(df)
+                            html_file = html_output(df,'Output/',cmp_file)
+                            st.markdown(html_file, unsafe_allow_html=True)
                             #st.write(html_op)
                             file_name = str(input1[i].name.split('_')[0]) + '_compare.csv'
                             df = df.to_csv().encode('utf-8')
